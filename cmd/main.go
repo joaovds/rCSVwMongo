@@ -5,7 +5,16 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 )
+
+type CsvData struct {
+  Id    string    `json:"id"`
+  Name  string    `json:"name"`
+  Email string    `json:"email"`
+  Age   int       `json:"age"`
+  Date  time.Time `json:"date"`
+}
 
 func main() {
   file, err := os.Open("./assets/csvTest.csv")
@@ -21,6 +30,15 @@ func main() {
     log.Fatal(err)
   }
 
-  fmt.Println(csvData)
+  // normalizar os dados agora
+  data := convertToStruct(csvData)
+
+  fmt.Println(data)
+}
+
+func convertToStruct(csvData [][]string) []CsvData {
+  data := []CsvData{}
+
+  return data
 }
 
