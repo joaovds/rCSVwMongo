@@ -25,6 +25,7 @@ func main() {
   defer file.Close()
 
   reader := csv.NewReader(file)
+  reader.Comma = 59
   csvData, err := reader.ReadAll()
   if err != nil {
     log.Fatal(err)
@@ -42,10 +43,12 @@ func convertToStruct(csvData [][]string) []CsvData {
     if indexRow == 0 {
       continue
     }
+    fmt.Printf("%T", row)
 
-    for indexCol, col := range row {
-      println(indexCol, col)
-    }
+    // newCsvRowData := CsvData{}
+    // for indexCol, col := range row {
+
+    // }
   }
 
   return data
