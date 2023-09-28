@@ -30,7 +30,6 @@ func main() {
     log.Fatal(err)
   }
 
-  // normalizar os dados agora
   data := convertToStruct(csvData)
 
   fmt.Println(data)
