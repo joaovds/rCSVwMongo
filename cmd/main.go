@@ -39,6 +39,16 @@ func main() {
 func convertToStruct(csvData [][]string) []CsvData {
   data := []CsvData{}
 
+  for indexRow, row := range csvData {
+    if indexRow == 0 {
+      continue
+    }
+
+    for indexCol, col := range row {
+      println(indexCol, col)
+    }
+  }
+
   return data
 }
 
