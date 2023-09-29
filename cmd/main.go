@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -43,14 +44,47 @@ func convertToStruct(csvData [][]string) []CsvData {
     if indexRow == 0 {
       continue
     }
-    fmt.Printf("%T", row)
 
-    // newCsvRowData := CsvData{}
-    // for indexCol, col := range row {
+    newCsvRowData := CsvData{}
+    for indexCol, col := range row {
+      switch indexCol {
+      case 0:
+        newCsvRowData.Id = col
 
-    // }
+      case 1:
+        newCsvRowData.Name = col
+
+      case 2:
+        newCsvRowData.Email = col
+
+      case 3:
+        formatedAge, err := strconv.Atoi(col)
+        if err != nil {
+          log.Fatal(err)
+        }
+        newCsvRowData.Age = formatedAge
+
+      case 4:
+        formatedDateTime, err := convertStringToTime(col)
+        if err != nil {
+          log.Fatal(err)
+        }
+        newCsvRowData.Date = formatedDateTime
+    }
+    }
+
+    data = append(data, newCsvRowData)
   }
 
   return data
+}
+
+func convertStringToTime(date string) (time.Time, error) {
+  formatedDateTime, err := time.Parse("02/01/2006", date)
+  if err != nil {
+    return time.Time{}, err
+  }
+
+  return formatedDateTime, nil
 }
 
