@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
@@ -8,6 +9,11 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type CsvData struct {
@@ -18,7 +24,16 @@ type CsvData struct {
   Date  time.Time `json:"date"`
 }
 
+func loadEnv() {
+  err := godotenv.Load()
+  if err != nil {
+    log.Fatal("Error loading .env file:", err)
+  }
+}
+
 func main() {
+  loadEnv()
+
   file, err := os.Open("./assets/csvTest.csv")
   if err != nil {
     log.Fatal(err)
@@ -36,6 +51,39 @@ func main() {
   data := convertToStruct(csvData)
 
   jsonEncode(data)
+
+  databaseURI := os.Getenv("DATABASE_URL")
+  if databaseURI == "" {
+    log.Fatal("DATABASE_URL is empty")
+  }
+
+  db, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(databaseURI))
+  if err != nil {
+    panic(err)
+  }
+
+  defer func() {
+    if err := db.Disconnect(context.TODO()); err != nil {
+      panic(err)
+    }
+  }()
+
+  tests_rCSVwMONGOColl := db.Database("teste_golang").Collection("tests_rCSVwMONGO")
+  
+  var resultsData []bson.M
+  cursor, err := tests_rCSVwMONGOColl.Find(context.TODO(), bson.D{})
+  if err != nil {
+    log.Fatal(err)
+  }
+
+  defer cursor.Close(context.TODO())
+
+  err = cursor.All(context.TODO(), &resultsData)
+  if err != nil {
+    panic(err)
+  }
+
+  fmt.Println(resultsData)
 }
 
 func convertToStruct(csvData [][]string) []CsvData {
