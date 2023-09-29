@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -34,7 +35,7 @@ func main() {
 
   data := convertToStruct(csvData)
 
-  fmt.Println(data)
+  jsonEncode(data)
 }
 
 func convertToStruct(csvData [][]string) []CsvData {
@@ -86,5 +87,14 @@ func convertStringToTime(date string) (time.Time, error) {
   }
 
   return formatedDateTime, nil
+}
+
+func jsonEncode(data []CsvData) {
+  json, err := json.MarshalIndent(data, "", "  ")
+  if err != nil {
+    log.Fatal(err)
+  }
+
+  fmt.Println(string(json))
 }
 
