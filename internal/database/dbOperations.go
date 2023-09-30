@@ -48,3 +48,13 @@ func GetOne(collectionName string, filter bson.D) (map[string]interface{}, error
   return resultData, nil
 }
 
+func InsertOne(collectionName string, data interface{}) (string, error) {
+  collection := GetMongoClient().Database("teste_golang").Collection(collectionName)
+  _, err := collection.InsertOne(context.TODO(), data)
+  if err != nil {
+    return "", err
+  }
+
+  return "Inserido com Sucesso", nil
+}
+

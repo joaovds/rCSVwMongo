@@ -11,6 +11,7 @@ import (
 	"github.com/joaovds/rCSVwMongo/pkg/handleCSV"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type CsvData struct {
@@ -42,16 +43,28 @@ func main() {
 
   resultsData, err := database.GetMany("tests_rCSVwMONGO", bson.D{})
   if err != nil {
-    log.Fatalln("Error getting data from database:", err)
+    log.Panicln("Error getting data from database:", err)
   }
 
-  resultData, err := database.GetOne("tests_rCSVwMONGO", bson.D{{"email", "teste@teste.com"}})
+  resultData, err := database.GetOne("tests_rCSVwMONGO", bson.D{primitive.E{Key: "email", Value: "teste@teste.com"}})
   if err != nil {
-    log.Fatalln("Error getting data from database:", err)
+    log.Panicln("Error getting data from database:", err)
+  }
+
+  resultCreate, err := database.InsertOne("tests_rCSVwMONGO", CsvData{
+    Id: "1",
+    Name: "Teste",
+    Email: "teste@teste2.com",
+    Age: 20,
+    Date: time.Now(),
+  })
+  if err != nil {
+    log.Panicln("Error inserting data from database:", err)
   }
 
   fmt.Println(resultsData)
   fmt.Println(resultData)
+  fmt.Println(resultCreate)
 }
 
 func convertToStruct(csvData [][]string) []CsvData {
