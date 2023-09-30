@@ -41,8 +41,17 @@ func main() {
   jsonEncode(data)
 
   resultsData, err := database.GetMany("tests_rCSVwMONGO", bson.D{})
+  if err != nil {
+    log.Fatalln("Error getting data from database:", err)
+  }
+
+  resultData, err := database.GetOne("tests_rCSVwMONGO", bson.D{{"email", "teste@teste.com"}})
+  if err != nil {
+    log.Fatalln("Error getting data from database:", err)
+  }
 
   fmt.Println(resultsData)
+  fmt.Println(resultData)
 }
 
 func convertToStruct(csvData [][]string) []CsvData {

@@ -5,12 +5,13 @@ import (
 	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type HandleCollection interface {
   InsertOne(collectionName string, data interface{}) (string, error)
-  GetOne(collectionName string, filter interface{}) (interface{}, error)
-  GetMany(collectionName string, filter interface{}) ([]map[string]interface{}, error)
+  GetOne(collectionName string, filter bson.D) (map[string]interface{}, error)
+  GetMany(collectionName string, filter bson.D) ([]map[string]interface{}, error)
 }
 
 func GetMany(collectionName string, filter interface{}) ([]map[string]interface{}, error) {
@@ -29,5 +30,21 @@ func GetMany(collectionName string, filter interface{}) ([]map[string]interface{
   }
 
   return resultsData, nil
+}
+
+func GetOne(collectionName string, filter bson.D) (map[string]interface{}, error) {
+  collection := GetMongoClient().Database("teste_golang").Collection(collectionName)
+
+  var resultData map[string]interface{}
+  err := collection.FindOne(context.TODO(), filter).Decode(&resultData)
+  if err != nil {
+    if err == mongo.ErrNoDocuments {
+      return nil, nil
+    }
+
+    return nil, err
+  }
+
+  return resultData, nil
 }
 
