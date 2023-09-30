@@ -2,17 +2,16 @@ package main
 
 import (
 	"context"
-	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 	"strconv"
 	"time"
 
+	"github.com/joaovds/rCSVwMongo/internal/database"
+	"github.com/joaovds/rCSVwMongo/pkg/handleCSV"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
-  "github.com/joaovds/rCSVwMongo/internal/database"
 )
 
 type CsvData struct {
@@ -33,18 +32,9 @@ func loadEnv() {
 func main() {
   loadEnv()
 
-  file, err := os.Open("./assets/csvTest.csv")
+  csvData, err := handleCSV.ReadCSV("./assets/csvTest.csv")
   if err != nil {
-    log.Fatal(err)
-  }
-
-  defer file.Close()
-
-  reader := csv.NewReader(file)
-  reader.Comma = 59
-  csvData, err := reader.ReadAll()
-  if err != nil {
-    log.Fatal(err)
+    log.Fatalln("Error reading CSV file:", err)
   }
 
   data := convertToStruct(csvData)
@@ -59,7 +49,6 @@ func main() {
   }
 
   defer cursor.Close(context.TODO())
-
 
   var resultsData []bson.M
   err = cursor.All(context.TODO(), &resultsData)
