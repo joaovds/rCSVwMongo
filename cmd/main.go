@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -41,20 +40,7 @@ func main() {
 
   jsonEncode(data)
 
-  tests_rCSVwMONGOColl := database.GetMongoClient().Database("teste_golang").Collection("tests_rCSVwMONGO")
-  
-  cursor, err := tests_rCSVwMONGOColl.Find(context.TODO(), bson.D{})
-  if err != nil {
-    log.Fatal(err)
-  }
-
-  defer cursor.Close(context.TODO())
-
-  var resultsData []bson.M
-  err = cursor.All(context.TODO(), &resultsData)
-  if err != nil {
-    panic(err)
-  }
+  resultsData, err := database.GetMany("tests_rCSVwMONGO", bson.D{})
 
   fmt.Println(resultsData)
 }
