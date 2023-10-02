@@ -15,7 +15,7 @@ import (
 )
 
 type CsvData struct {
-  Id    string    `json:"id"`
+  Id    string    `json:"csvID" bson:"csvID"`
   Name  string    `json:"name"`
   Email string    `json:"email"`
   Age   int       `json:"age"`
