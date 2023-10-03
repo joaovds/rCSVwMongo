@@ -2,9 +2,13 @@ package database
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log"
 
+	"github.com/joaovds/rCSVwMongo/internal/entities"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -48,13 +52,48 @@ func GetOne(collectionName string, filter bson.D) (map[string]interface{}, error
   return resultData, nil
 }
 
-func InsertOne(collectionName string, data interface{}) (string, error) {
-  collection := GetMongoClient().Database("teste_golang").Collection(collectionName)
-  _, err := collection.InsertOne(context.TODO(), data)
+func CheckIfExist(collectionName string, filter bson.D) (bool, error) {
+  document, err := GetOne(collectionName, filter)
   if err != nil {
-    return "", err
+    return false, err
+  }
+  
+  if document == nil {
+    return false, nil
   }
 
-  return "Inserido com Sucesso", nil
+  return true, nil
+}
+
+func InsertOne(collectionName string, data interface{}) (string, error) {
+  dataTypeAsserted, ok := data.(entities.User)
+  if !ok {
+    return "", errors.New("Erro ao converter o tipo de dado")
+  }
+
+  exists, err := CheckIfExist(
+    collectionName,
+    bson.D{
+      primitive.E{ Key: "csvID", Value: dataTypeAsserted.CsvId },
+      primitive.E{ Key: "email", Value: dataTypeAsserted.Email },
+    },
+    )
+  if err != nil {
+    log.Panicln(err)
+  }
+
+  if exists {
+    str := fmt.Sprintf("Usuário com o ID: %s e Email: %s já existe", dataTypeAsserted.CsvId, dataTypeAsserted.Email)
+    return str, nil
+  } else {
+    collection := GetMongoClient().Database("teste_golang").Collection(collectionName)
+    _, err := collection.InsertOne(context.TODO(), data)
+    if err != nil {
+      return "", err
+    }
+
+    successMessage := fmt.Sprintf("Inserido com Sucesso: %s", dataTypeAsserted.CsvId)
+    return successMessage, nil
+  }
 }
 
